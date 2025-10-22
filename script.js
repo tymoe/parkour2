@@ -82,19 +82,25 @@ function spawnObstacle() {
     const chance = Math.random();
     let isTower = false;
 
-    // 30% chance to spawn the special tower + mushroom combo
-    if (chance < 0.3) {
+    // 50% chance for a floating pumpkin
+    if (chance < 0.5) {
+        obstacles.push({
+            x: canvas.width,
+            y: canvas.height - (obstacleProps.height * 2.5), // Positioned in the air
+            width: obstacleProps.width,
+            height: obstacleProps.height
+        });
+    }
+    // 15% chance for the tower combo
+    else if (chance < 0.65) {
         isTower = true;
-        // Spawn the mushroom first
         powerups.push({
             x: canvas.width,
             y: canvas.height - obstacleProps.height,
             width: obstacleProps.width,
             height: obstacleProps.height,
         });
-
-        // Then spawn the tower of 4 pumpkins after a set distance
-        const towerX = canvas.width + 300; // Place it a bit after the mushroom
+        const towerX = canvas.width + 300;
         for (let i = 0; i < 4; i++) {
             obstacles.push({
                 x: towerX,
@@ -104,8 +110,8 @@ function spawnObstacle() {
             });
         }
     }
-    // 35% chance for a double obstacle
-    else if (chance < 0.65) {
+    // 15% chance for a double obstacle
+    else if (chance < 0.80) {
         obstacles.push({
             x: canvas.width,
             y: canvas.height - obstacleProps.height,
@@ -119,7 +125,7 @@ function spawnObstacle() {
             height: obstacleProps.height
         });
     }
-    // Default (35%): single obstacle
+    // Default (20%): single obstacle on the ground
     else {
         obstacles.push({
             x: canvas.width,
