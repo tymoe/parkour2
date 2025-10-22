@@ -80,9 +80,11 @@ class Player {
 // --- Obstacle and Power-up Functions ---
 function spawnObstacle() {
     const chance = Math.random();
+    let isTower = false;
 
     // 80% chance to spawn the special tower + mushroom combo
     if (chance < 0.8) {
+        isTower = true;
         // Spawn the mushroom first
         powerups.push({
             x: canvas.width,
@@ -101,8 +103,6 @@ function spawnObstacle() {
                 height: obstacleProps.height
             });
         }
-        // Make the next spawn take longer to give the player space
-        obstacleSpawnTimer = -150;
     }
     // 10% chance for a double obstacle
     else if (chance < 0.9) {
@@ -128,6 +128,7 @@ function spawnObstacle() {
             height: obstacleProps.height
         });
     }
+    return isTower;
 }
 
 function updateEntities(entities) {
@@ -219,8 +220,13 @@ function gameLoop() {
 
     obstacleSpawnTimer++;
     if (obstacleSpawnTimer > (100 + Math.random() * 50)) {
-        spawnObstacle();
-        obstacleSpawnTimer = 0;
+        const isTower = spawnObstacle();
+        if (isTower) {
+            // Pause for 120 frames (2 seconds) before the next spawn timer starts counting up from 0
+            obstacleSpawnTimer = -120;
+        } else {
+            obstacleSpawnTimer = 0;
+        }
     }
 
     updateEntities(obstacles);
