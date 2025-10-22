@@ -19,32 +19,32 @@ let player, obstacles, score, gameOver, startTime, obstacleSpawnTimer;
 const playerProps = {
     x: 50,
     y: canvas.height - 50,
-    width: 30,
-    height: 30,
-    color: '#FFFFFF', // A white square, like a ghost
+    width: 40, // Adjusted for emoji size
+    height: 40, // Adjusted for emoji size
     dy: 0, // Vertical velocity
-    jumpStrength: 12,
-    gravity: 0.7
+    jumpStrength: 14, // Slightly stronger jump for bigger size
+    gravity: 0.8
 };
 
 // --- Obstacle Properties ---
 const obstacleProps = {
     width: 40,
     height: 40,
-    color: '#ff9900', // Orange for pumpkins
     speed: 5
 };
 
 // --- Player Class ---
 class Player {
-    constructor(x, y, width, height, color) {
-        Object.assign(this, { x, y, width, height, color });
+    constructor(x, y, width, height) {
+        Object.assign(this, { x, y, width, height });
         this.dy = 0;
     }
 
     draw() {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.font = `${this.height}px serif`;
+        // Align text baseline to make positioning easier
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('👻', this.x, this.y + this.height);
     }
 
     update() {
@@ -89,15 +89,17 @@ function updateObstacles() {
 }
 
 function drawObstacles() {
-    ctx.fillStyle = obstacleProps.color;
     obstacles.forEach(obs => {
-        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        ctx.font = `${obs.height}px serif`;
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('🎃', obs.x, obs.y + obs.height);
     });
 }
 
 // --- Collision Detection ---
 function checkCollision() {
     for (const obs of obstacles) {
+        // A simple bounding box collision detection
         if (
             player.x < obs.x + obs.width &&
             player.x + player.width > obs.x &&
@@ -130,7 +132,7 @@ function showGameOver() {
 
 // --- Game Initialization ---
 function init() {
-    player = new Player(playerProps.x, playerProps.y, playerProps.width, playerProps.height, playerProps.color);
+    player = new Player(playerProps.x, playerProps.y, playerProps.width, playerProps.height);
     obstacles = [];
     score = 0;
     gameOver = false;
@@ -155,7 +157,8 @@ function gameLoop() {
 
     // Spawn, update, and draw obstacles
     obstacleSpawnTimer++;
-    if (obstacleSpawnTimer > 90) { // Spawn an obstacle every 90 frames
+    // Adjust spawn rate to be a bit more challenging
+    if (obstacleSpawnTimer > (100 + Math.random() * 50)) {
         spawnObstacle();
         obstacleSpawnTimer = 0;
     }
