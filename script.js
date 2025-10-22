@@ -86,7 +86,7 @@ function spawnObstacle() {
     const chance = Math.random();
     let isTower = false;
 
-    // 25% chance for exploding bomb + shield mushroom
+    // Case 1: Exploding Pumpkin + Shield Mushroom (25%)
     if (chance < 0.25) {
         powerups.push({
             x: canvas.width,
@@ -103,12 +103,12 @@ function spawnObstacle() {
             type: 'exploding'
         });
     }
-    // 25% chance for the tower combo
+    // Case 2: Four-Pumpkin Tower + Jump Mushroom (25%)
     else if (chance < 0.50) {
         isTower = true;
         powerups.push({
             x: canvas.width,
-            y: canvas.height - obstacleProps.height,
+            y: canvas.height - obstacleProps.height, // Ground mushroom
             width: obstacleProps.width,
             height: obstacleProps.height,
             type: 'jump'
@@ -124,8 +124,9 @@ function spawnObstacle() {
             });
         }
     }
-    // 25% chance for a double obstacle
+    // Case 3: Double Pumpkin (one ground, one floating) (25%)
     else if (chance < 0.75) {
+        // Ground pumpkin
         obstacles.push({
             x: canvas.width,
             y: canvas.height - obstacleProps.height,
@@ -133,6 +134,7 @@ function spawnObstacle() {
             height: obstacleProps.height,
             type: 'normal'
         });
+        // Floating pumpkin directly above
         obstacles.push({
             x: canvas.width,
             y: canvas.height - (obstacleProps.height * 2),
@@ -141,7 +143,7 @@ function spawnObstacle() {
             type: 'normal'
         });
     }
-    // Default (25%): single obstacle on the ground
+    // Case 4: Single Pumpkin (on the ground) (25%)
     else {
         obstacles.push({
             x: canvas.width,
@@ -177,7 +179,6 @@ function drawPowerups() {
     powerups.forEach(p => {
         ctx.font = `${p.height}px serif`;
         ctx.textBaseline = 'bottom';
-        // Golden mushroom for shield, normal for jump
         if (p.type === 'shield') {
             ctx.shadowColor = 'gold';
             ctx.shadowBlur = 15;
