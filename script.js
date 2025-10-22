@@ -82,8 +82,8 @@ function spawnObstacle() {
     const chance = Math.random();
     let isTower = false;
 
-    // 80% chance to spawn the special tower + mushroom combo
-    if (chance < 0.8) {
+    // 67% chance to spawn the special tower + mushroom combo
+    if (chance < 0.67) {
         isTower = true;
         // Spawn the mushroom first
         powerups.push({
@@ -104,8 +104,8 @@ function spawnObstacle() {
             });
         }
     }
-    // 10% chance for a double obstacle
-    else if (chance < 0.9) {
+    // ~16% chance for a double obstacle
+    else if (chance < 0.83) {
         obstacles.push({
             x: canvas.width,
             y: canvas.height - obstacleProps.height,
@@ -119,7 +119,7 @@ function spawnObstacle() {
             height: obstacleProps.height
         });
     }
-    // Default (10%): single obstacle
+    // Default (~17%): single obstacle
     else {
         obstacles.push({
             x: canvas.width,
