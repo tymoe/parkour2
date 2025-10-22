@@ -68,12 +68,23 @@ class Player {
 
 // --- Obstacle Functions ---
 function spawnObstacle() {
+    // Always spawn the bottom obstacle
     obstacles.push({
         x: canvas.width,
         y: canvas.height - obstacleProps.height,
         width: obstacleProps.width,
         height: obstacleProps.height
     });
+
+    // 30% chance to spawn a second, stacked obstacle
+    if (Math.random() < 0.3) {
+        obstacles.push({
+            x: canvas.width,
+            y: canvas.height - (obstacleProps.height * 2), // Position it on top of the first one
+            width: obstacleProps.width,
+            height: obstacleProps.height
+        });
+    }
 }
 
 function updateObstacles() {
