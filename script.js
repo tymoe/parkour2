@@ -40,15 +40,19 @@ class Player {
         Object.assign(this, { x, y, width, height });
         this.dy = 0;
         this.hasSuperJump = false;
+        this.hasShield = false;
     }
 
     draw() {
         ctx.font = `${this.height}px serif`;
         ctx.textBaseline = 'bottom';
-        // Add a little glow if super jump is active
+        // Add a glow effect based on active power-ups
         if (this.hasSuperJump) {
             ctx.shadowColor = 'yellow';
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 15;
+        } else if (this.hasShield) {
+            ctx.shadowColor = 'cyan'; // Blue glow for shield
+            ctx.shadowBlur = 15;
         }
         ctx.fillText('👻', this.x, this.y + this.height);
         ctx.shadowColor = 'transparent'; // Reset shadow
@@ -82,23 +86,32 @@ function spawnObstacle() {
     const chance = Math.random();
     let isTower = false;
 
-    // 50% chance for a floating pumpkin
-    if (chance < 0.5) {
-        obstacles.push({
+    // 25% chance for exploding bomb + shield mushroom
+    if (chance < 0.25) {
+        powerups.push({
             x: canvas.width,
-            y: canvas.height - (obstacleProps.height * 2.5), // Positioned in the air
+            y: canvas.height - (obstacleProps.height * 2), // High mushroom
             width: obstacleProps.width,
-            height: obstacleProps.height
+            height: obstacleProps.height,
+            type: 'shield'
+        });
+        obstacles.push({
+            x: canvas.width + 150,
+            y: canvas.height - obstacleProps.height,
+            width: obstacleProps.width,
+            height: obstacleProps.height,
+            type: 'exploding'
         });
     }
-    // 15% chance for the tower combo
-    else if (chance < 0.65) {
+    // 25% chance for the tower combo
+    else if (chance < 0.50) {
         isTower = true;
         powerups.push({
             x: canvas.width,
             y: canvas.height - obstacleProps.height,
             width: obstacleProps.width,
             height: obstacleProps.height,
+            type: 'jump'
         });
         const towerX = canvas.width + 300;
         for (let i = 0; i < 4; i++) {
@@ -106,32 +119,36 @@ function spawnObstacle() {
                 x: towerX,
                 y: canvas.height - (obstacleProps.height * (i + 1)),
                 width: obstacleProps.width,
-                height: obstacleProps.height
+                height: obstacleProps.height,
+                type: 'normal'
             });
         }
     }
-    // 15% chance for a double obstacle
-    else if (chance < 0.80) {
+    // 25% chance for a double obstacle
+    else if (chance < 0.75) {
         obstacles.push({
             x: canvas.width,
             y: canvas.height - obstacleProps.height,
             width: obstacleProps.width,
-            height: obstacleProps.height
+            height: obstacleProps.height,
+            type: 'normal'
         });
         obstacles.push({
             x: canvas.width,
             y: canvas.height - (obstacleProps.height * 2),
             width: obstacleProps.width,
-            height: obstacleProps.height
+            height: obstacleProps.height,
+            type: 'normal'
         });
     }
-    // Default (20%): single obstacle on the ground
+    // Default (25%): single obstacle on the ground
     else {
         obstacles.push({
             x: canvas.width,
             y: canvas.height - obstacleProps.height,
             width: obstacleProps.width,
-            height: obstacleProps.height
+            height: obstacleProps.height,
+            type: 'normal'
         });
     }
     return isTower;
@@ -151,7 +168,8 @@ function drawObstacles() {
     obstacles.forEach(obs => {
         ctx.font = `${obs.height}px serif`;
         ctx.textBaseline = 'bottom';
-        ctx.fillText('🎃', obs.x, obs.y + obs.height);
+        const emoji = obs.type === 'exploding' ? '💣' : '🎃';
+        ctx.fillText(emoji, obs.x, obs.y + obs.height);
     });
 }
 
@@ -159,16 +177,33 @@ function drawPowerups() {
     powerups.forEach(p => {
         ctx.font = `${p.height}px serif`;
         ctx.textBaseline = 'bottom';
+        // Golden mushroom for shield, normal for jump
+        if (p.type === 'shield') {
+            ctx.shadowColor = 'gold';
+            ctx.shadowBlur = 15;
+        } else {
+            ctx.shadowColor = 'yellow';
+            ctx.shadowBlur = 10;
+        }
         ctx.fillText('🍄', p.x, p.y + p.height);
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
     });
 }
 
 // --- Collision Detection ---
 function checkObstacleCollision() {
-    for (const obs of obstacles) {
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
         if (player.x < obs.x + obs.width && player.x + player.width > obs.x &&
             player.y < obs.y + obs.height && player.y + player.height > obs.y) {
-            gameOver = true;
+
+            if (obs.type === 'exploding' && player.hasShield) {
+                player.hasShield = false; // Consume shield
+                obstacles.splice(i, 1);   // Remove bomb
+            } else {
+                gameOver = true;
+            }
         }
     }
 }
@@ -178,7 +213,11 @@ function checkPowerupCollision() {
         const p = powerups[i];
         if (player.x < p.x + p.width && player.x + player.width > p.x &&
             player.y < p.y + p.height && player.y + player.height > p.y) {
-            player.hasSuperJump = true;
+            if (p.type === 'jump') {
+                player.hasSuperJump = true;
+            } else if (p.type === 'shield') {
+                player.hasShield = true;
+            }
             powerups.splice(i, 1); // Remove the power-up
         }
     }
@@ -228,7 +267,6 @@ function gameLoop() {
     if (obstacleSpawnTimer > (100 + Math.random() * 50)) {
         const isTower = spawnObstacle();
         if (isTower) {
-            // Pause for 180 frames (3 seconds) before the next spawn timer starts counting up from 0
             obstacleSpawnTimer = -180;
         } else {
             obstacleSpawnTimer = 0;
