@@ -222,8 +222,8 @@ function gameLoop() {
     if (obstacleSpawnTimer > (100 + Math.random() * 50)) {
         const isTower = spawnObstacle();
         if (isTower) {
-            // Pause for 120 frames (2 seconds) before the next spawn timer starts counting up from 0
-            obstacleSpawnTimer = -120;
+            // Pause for 180 frames (3 seconds) before the next spawn timer starts counting up from 0
+            obstacleSpawnTimer = -180;
         } else {
             obstacleSpawnTimer = 0;
         }
