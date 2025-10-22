@@ -81,8 +81,8 @@ class Player {
 function spawnObstacle() {
     const chance = Math.random();
 
-    // 50% chance to spawn the special tower + mushroom combo
-    if (chance < 0.5) {
+    // 80% chance to spawn the special tower + mushroom combo
+    if (chance < 0.8) {
         // Spawn the mushroom first
         powerups.push({
             x: canvas.width,
@@ -104,8 +104,8 @@ function spawnObstacle() {
         // Make the next spawn take longer to give the player space
         obstacleSpawnTimer = -150;
     }
-    // 25% chance for a double obstacle
-    else if (chance < 0.75) {
+    // 10% chance for a double obstacle
+    else if (chance < 0.9) {
         obstacles.push({
             x: canvas.width,
             y: canvas.height - obstacleProps.height,
@@ -119,7 +119,7 @@ function spawnObstacle() {
             height: obstacleProps.height
         });
     }
-    // Default (25%): single obstacle
+    // Default (10%): single obstacle
     else {
         obstacles.push({
             x: canvas.width,
