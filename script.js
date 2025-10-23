@@ -259,7 +259,7 @@ function init() {
     startTime = Date.now();
     obstacleSpawnTimer = 0;
     gameState = 'running';
-    bossDefeated = false; // Reset on init
+    bossDefeated = false; // Reset boss defeated flag
     gameLoop();
 }
 
@@ -274,18 +274,21 @@ function gameLoop() {
 
     const elapsedTime = updateTimer();
 
+    // Always update existing entities so they keep moving during the post-boss pause
+    updateEntities(obstacles, obstacleProps.speed);
+    updateEntities(powerups, obstacleProps.speed);
+
     if (gameState === 'paused') {
         if (Date.now() > pauseEndTime) {
             gameState = 'running';
         }
     } else if (gameState === 'running') {
+        // Only spawn new obstacles when in 'running' state
         obstacleSpawnTimer++;
         if (obstacleSpawnTimer > (100 + Math.random() * 50)) {
             const isTower = spawnObstacle();
             obstacleSpawnTimer = isTower ? -180 : 0;
         }
-        updateEntities(obstacles, obstacleProps.speed);
-        updateEntities(powerups, obstacleProps.speed);
 
         if (elapsedTime >= 60 && !bossDefeated) {
             gameState = 'boss';
